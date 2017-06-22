@@ -41,8 +41,14 @@ public class LiveScreenshotDisposer extends SimpleBuildWrapper.Disposer {
     @Override
     public void tearDown(final Run<?, ?> build, final FilePath workspace, final Launcher launcher, final TaskListener listener) throws IOException, InterruptedException {
         Map<String, String> map = new HashMap<>();
-        map.put("screenshots/" + fullscreenFilename, fullscreenFilename);
-        map.put("screenshots/" + thumbnailFilename, thumbnailFilename);
+
+        if (fullscreenFilename != null) {
+            map.put("screenshots/" + fullscreenFilename, fullscreenFilename);
+        }
+        if (thumbnailFilename != null) {
+            map.put("screenshots/" + thumbnailFilename, thumbnailFilename);
+        }
+
         build.getArtifactManager().archive(workspace, launcher, null, map);
     }
 }
