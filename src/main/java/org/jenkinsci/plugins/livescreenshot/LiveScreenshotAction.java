@@ -124,7 +124,11 @@ public class LiveScreenshotAction implements Action {
 	
 	public byte[] noScreenshotFile() throws IOException {
 		InputStream is = this.getClass().getResourceAsStream("noscreenshot.png");
-		return this.readContent(is, is.available());
+		try {
+			return this.readContent(is, is.available());
+		} finally {
+			is.close();
+		}
 	}
 	
 	public byte[] screenshotArtifact(String filename) throws IOException {
