@@ -87,7 +87,7 @@ public class LiveScreenshotAction implements Action {
 		}
 			
 		// load image
-		byte[] bytes = new byte[0];
+		byte[] bytes;
 		try {
 			bytes = screenshot(filename);
 		}
