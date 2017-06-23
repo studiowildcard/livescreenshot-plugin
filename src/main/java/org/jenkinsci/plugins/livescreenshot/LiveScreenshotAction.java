@@ -152,7 +152,10 @@ public class LiveScreenshotAction implements Action {
 			}
 			InputStream is = fp.read();
 			byte[] bytes = readContent(is, fp.length());
-			is.read(bytes);
+			int read = 0;
+			while (read != fp.length() && read != -1) {
+				read += is.read(bytes);
+			}
 			return bytes;
 		}
 		catch (InterruptedException ex) {
