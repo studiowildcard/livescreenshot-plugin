@@ -1,6 +1,6 @@
 /**
  * Copyright 2013 Dr. Stefan Schimanski <sts@1stein.org>
- * Copyright 2017 Harald Sitter <sitter@kde.org>
+ * Copyright 2017-2018 Harald Sitter <sitter@kde.org>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,8 +36,8 @@ public class LiveScreenshotAction implements Action {
 	private Run<?,?> build;
 	private final String fullscreenFilename;
 	private final String thumbnailFilename;
-	private FilePath workspace;
-	
+	private final transient VirtualFile workspace;
+
 	public String getFullscreenFilename() {
 		return fullscreenFilename;
 	}
@@ -45,10 +45,10 @@ public class LiveScreenshotAction implements Action {
 	public String getThumbnailFilename() {
 		return thumbnailFilename;
 	}
-	
+
 	public LiveScreenshotAction(Run<?,?> build, FilePath workspace, String fullscreenFilename, String thumbnailFilename) {
 		this.build = build;
-		this.workspace = workspace;
+		this.workspace = workspace.toVirtualFile();
 		this.fullscreenFilename = fullscreenFilename;
 		this.thumbnailFilename = thumbnailFilename;
 	}
@@ -69,7 +69,7 @@ public class LiveScreenshotAction implements Action {
 		return "screenshot";
 	}
 
-	public FilePath getWorkspace() {
+	public VirtualFile getWorkspace() {
 		return this.workspace;
 	}
 
@@ -94,7 +94,7 @@ public class LiveScreenshotAction implements Action {
 		catch (IOException e) {
 			return;
 		}
-			
+
 		// output image
 		if (filename.endsWith(".PNG") || filename.endsWith(".png"))
 			rsp.setContentType("image/png");
@@ -144,23 +144,20 @@ public class LiveScreenshotAction implements Action {
 	}
 	
 	public byte[] liveScreenshot(String filename) throws IOException {
-		try {
-			// return workspace file
-			FilePath fp = workspace.child(filename);
-			if (!fp.exists()) {
-				return this.noScreenshotFile();
-			}
-			InputStream is = fp.read();
-			byte[] bytes = readContent(is, fp.length());
-			int read = 0;
-			while (read != fp.length() && read != -1) {
-				read += is.read(bytes);
-			}
-			return bytes;
-		}
-		catch (InterruptedException ex) {
+		// return workspace file
+		if (workspace == null)
+			return new byte[0];
+		VirtualFile fp = workspace.child(filename);
+		if (!fp.exists()) {
 			return this.noScreenshotFile();
 		}
+		InputStream is = fp.open();
+		byte[] bytes = readContent(is, fp.length());
+		int read = 0;
+		while (read != fp.length() && read != -1) {
+			read += is.read(bytes);
+		}
+		return bytes;
 	}
 	
 	public byte[] screenshot(String filename) throws IOException {
