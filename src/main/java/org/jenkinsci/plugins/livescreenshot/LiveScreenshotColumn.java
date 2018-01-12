@@ -1,6 +1,6 @@
 /**
  * Copyright 2013 Dr. Stefan Schimanski <sts@1stein.org>
- * Copyright 2017 Harald Sitter <sitter@kde.org>
+ * Copyright 2017-2018 Harald Sitter <sitter@kde.org>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,20 +21,17 @@ package org.jenkinsci.plugins.livescreenshot;
 import hudson.Extension;
 import hudson.matrix.MatrixBuild;
 import hudson.matrix.MatrixRun;
-import hudson.model.AbstractBuild;
-import hudson.model.Computer;
-import hudson.model.Executor;
-import hudson.model.Job;
-import hudson.model.Run;
+import hudson.model.*;
 import hudson.scm.ChangeLogSet;
 import hudson.scm.ChangeLogSet.Entry;
 import hudson.util.RunList;
 import hudson.views.ListViewColumn;
 import hudson.views.ListViewColumnDescriptor;
+import org.kohsuke.stapler.DataBoundConstructor;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
  *
@@ -68,12 +65,13 @@ public class LiveScreenshotColumn extends ListViewColumn {
 		return html;
 	}
 	
-    public String getScreenshots(Job job) {
+
+	public String getScreenshots(Job job) {
 		// collect screenshot link strings for all active builds
 		RunList runs = job.getBuilds();
-		HashMap<AbstractBuild, String> runScreenshotStrings = new HashMap<AbstractBuild, String>();
+		HashMap<Build, String> runScreenshotStrings = new HashMap<Build, String>();
 		for (Object o : runs) {
-			AbstractBuild b = (AbstractBuild)o;
+			Build b = (Build)o;
 			if (!b.isBuilding())
 				continue;
 			String rs = this.collectScreenshots(b);
@@ -84,11 +82,13 @@ public class LiveScreenshotColumn extends ListViewColumn {
 			} else {
 				runScreenshotStrings.put(b, rs);
 			}
+
+
 		}
-		
+
 		// one row for each job
 		StringBuffer buf = new StringBuffer();
-		for (Map.Entry<AbstractBuild, String> pair : runScreenshotStrings.entrySet()) {
+		for (Map.Entry<Build, String> pair : runScreenshotStrings.entrySet()) {
 			// newline?
 			if (buf.length() != 0) {
 				buf.append("<br/><br/>");
@@ -98,7 +98,7 @@ public class LiveScreenshotColumn extends ListViewColumn {
 			buf.append(pair.getValue());
 
 			// then the line with the "stop" link and the changelog
-			AbstractBuild r = pair.getKey();
+			Build r = pair.getKey();
 			buf.append("<br/><a href=\"" + r.getUrl() + "\">" + r.getDisplayName() + "</a> ");
 
 			// create link to executor stop action, or the oneOffExecutor for MatrixBuilds
