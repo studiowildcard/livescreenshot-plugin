@@ -58,13 +58,12 @@ public class LiveScreenshotColumn extends ListViewColumn {
 		} else {
 			// add screenshot of current job
 			if (run.isBuilding()) {
-				html = html + "<a href=\"" + run.getUrl() + "screenshot\">" +
-						"<img src=\"" + run.getUrl() + "screenshot/thumb\" /></a>";
+				html = html + "<a href=\"/" + run.getUrl() + "screenshot\">" +
+						"<img src=\"/" + run.getUrl() + "screenshot/thumb\" /></a>";
 			}
 		}
 		return html;
 	}
-	
 
 	public String getScreenshots(Job job) {
 		// collect screenshot link strings for all active builds
